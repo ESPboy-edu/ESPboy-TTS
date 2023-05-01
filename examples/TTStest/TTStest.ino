@@ -13,25 +13,25 @@
 #include <TTS.h>
 
 // Media pins
-#define PWM 3
-#define LED 13                          
+#define PWM 0 //ESPboy sound pin GPIO0
+#define LED 2 //ESPboy led pin PGIO2                         
 
 TTS text2speech(PWM);  // default is digital pin 10
 
 void setup() { 
+  Serial.begin(115200);
   pinMode(LED, OUTPUT); 
 }
 
 void loop() {
   digitalWrite(LED, !digitalRead(LED));
 
-  text2speech.setPitch(6);
+  text2speech.setPitch(15);
   text2speech.sayText("Hello  master! How are you doin?");
-  delay(500); 
+  delay(2000); 
 
-  text2speech.setPitch(1);
+  text2speech.setPitch(8);
   text2speech.sayText("I am fine, thankyou."); 
 
-  delay(1000);
+  delay(5000);
 }  
-

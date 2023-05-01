@@ -6,6 +6,14 @@
 #define CHANNEL_FOR(p) (p == 25)? DAC_CHANNEL_1: DAC_CHANNEL_2
 #endif
 
+volatile uint8_t soundPlayByte;
+
+void IRAM_ATTR soundPlay(){
+  sigmaDeltaWrite(0, soundPlayByte);
+}
+
+
+
 void soundOff(int pin)
 {
 
@@ -46,8 +54,13 @@ void soundOff(int pin)
 #elif defined(ESP32)
     dac_output_disable(CHANNEL_FOR(pin));
 
+#elif defined(ESP8266)
+  noInterrupts();
+  soundPlayByte = 0;
+  timer1_disable();
+  sigmaDeltaDisable();
+  interrupts();
 #else
-
     analogWrite(pin, 0);
 #endif
 }
@@ -117,11 +130,17 @@ void soundOn(int pin)
 #endif
     }
 #elif defined(ESP8266)
-
-    analogWriteFreq(12000);
-    analogWriteRange(PWM_TOP);
+  noInterrupts();
+  sigmaDeltaSetup(0, SAMPLE_RATE);
+  sigmaDeltaAttachPin(pin);
+  sigmaDeltaEnable();
+  timer1_attachInterrupt(soundPlay);
+  timer1_enable(TIM_DIV1, TIM_EDGE, TIM_LOOP);
+  timer1_write(80000000 / SAMPLE_RATE);
+  interrupts(); 
+    //analogWriteFreq(12000);
+    //analogWriteRange(PWM_TOP);
 #elif defined(ESP32)
-
     dac_output_enable(CHANNEL_FOR(pin));
 #endif
 }
@@ -189,10 +208,10 @@ void sound(int pin, byte b)
 #endif
     }
 #elif defined(ESP32)
-
     dac_output_voltage(CHANNEL_FOR(pin), b*8);
+#elif defined(ESP8266)
+   soundPlayByte = b*8;
 #else
-
     analogWrite(pin, b*8);
 #endif
 }

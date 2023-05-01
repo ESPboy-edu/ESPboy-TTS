@@ -293,12 +293,24 @@ static int phonemesToData(const char *textp, const PHONEME * phoneme)
 
 static void pause(byte d)
 {
+    #if defined(ESP8266) 
+      ESP.wdtFeed();
+    #endif
     delayMicroseconds(d*6);
+    #if defined(ESP8266) 
+      ESP.wdtFeed();
+    #endif
 }
 
 static void delay2(byte d)
 {
+    #if defined(ESP8266) 
+      ESP.wdtFeed();
+    #endif
     delayMicroseconds(d*3127);
+    #if defined(ESP8266) 
+      ESP.wdtFeed();
+    #endif
 }
 
 /*
@@ -336,8 +348,9 @@ static byte playTone(int pin, byte soundNum, byte soundPos, char pitch1, char pi
 
 static void play(int pin, byte duration, byte soundNumber)
 {
-    while (duration--)
-	playTone(pin, soundNumber, random2(), 7, 7, 10, 15);
+    while (duration--){
+  	  playTone(pin, soundNumber, random2(), 7, 7, 10, 15);
+  	  }
 }
 
 /******************************************************************************
